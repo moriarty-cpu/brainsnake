@@ -1,0 +1,50 @@
+header {
+    padding: 5px;
+    background-color: #ff9f68;
+    color: #7c203a;
+    font-style: bold;
+    border-bottom: 2px solid #7c203a;
+}
+
+header div {
+    display: flex;
+    justify-content: center;
+    height: 150px;
+}
+
+header h1 {
+    font-size: 96px;
+}
+
+main {
+    color: #7c203a;
+    font-size: 50px;
+    line-height: 1.3;
+}
+
+main ol {
+    padding: 0;
+}
+
+main li {
+    font-size: 60px;
+    /* line-height: 1; */
+    list-style-position: inside;
+}
+
+.subOl li {
+    font-size: 45px;
+    margin-left: 100px;
+    list-style: none;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+.subOl span {
+background-color: #f85959;
+padding: 5px;
+}
+
+.container {
+    padding: 10px 40px;
+}

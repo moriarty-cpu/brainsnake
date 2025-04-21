@@ -1,0 +1,14 @@
+body {
+  padding: 0px;
+  margin: 0px;
+
+  background-color: #feff89;
+  font-family: 'PixelizerBold', sans-serif ;
+}
+
+@font-face {  
+  font-family: 'PixelizerBold';
+  src: url('./fonts/PixelizerBold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
