@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { Link } from "wouter";
 
 function Sections() {
   const [sections, setSections] = useState([]);
   const [subSections, setSubSections] = useState([]);
   const [openedSectionId, setOpenedSectionId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchAll() {
@@ -17,6 +21,8 @@ function Sections() {
         setSections(sectionsData);
         setSubSections(subSectionsData);
       }
+
+      setLoading(false);
     }
 
     fetchAll();
@@ -26,24 +32,39 @@ function Sections() {
     setOpenedSectionId((prevId) => (prevId === sectionId ? null : sectionId));
   };
 
+  if (loading) {
+    // 👇 Показываем 5 скелетонов вместо настоящих данных
+    return (
+      <ol>
+        {Array.from({ length: 18 }).map((_, i) => (
+          <li key={i}>
+            <Skeleton height={20} width={200} />
+          </li>
+        ))}
+      </ol>
+    );
+  }
+
   return (
     <ol>
       {sections.map((section) => (
         <li key={section.id}>
           <span
             onClick={() => handleClick(section.id)}
-            style={{ cursor: 'pointer'}}>
+            style={{ cursor: 'pointer', fontWeight: 'bold' }}>
             {section.title}
           </span>
 
-          {/* Подменю под конкретным элементом */}
           {openedSectionId === section.id && (
-            <ol className='subOl'>
+            <ol className="subOl" style={{ marginLeft: '1rem' }}>
               {subSections
                 .filter((sub) => sub.section === section.id)
                 .map((sub) => (
                   <li key={sub.id}>
-                    <span>{sub.title}</span></li>
+                    <Link href="/guide">
+                      <span>{sub.title}</span>
+                    </Link>
+                  </li>
                 ))}
             </ol>
           )}
