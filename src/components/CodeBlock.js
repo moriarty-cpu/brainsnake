@@ -8,12 +8,12 @@ export default function CodeBlock({ code, language = 'python' }) {
                 language={language}
                 style={vscDarkPlus}
                 customStyle={{
-                    borderRadius: '10px',
+                    borderRadius: '8px',
                     padding: '16px',
                     overflow: 'auto',
                 }}
                 codeTagProps={{
-                    style: { fontSize: '40px' } // вот это ключевой момент
+                    style: { fontSize: '0.8rem' } 
                 }}
             >
                 {code}

@@ -1,10 +1,20 @@
-body {
+* {
+  box-sizing: border-box;
   padding: 0px;
   margin: 0px;
+  /* outline: 1px solid red; */
+}
+
+html {
+  font-size: 18px;
+}
+
+body {
   background-color: #feff89;
   font-family: 'PixelizerBold', sans-serif;
   width: auto;
   height: 100vh;
+  font-size: 1rem;
 }
 
 @font-face {
@@ -14,7 +24,3 @@ body {
   font-style: normal;
 }
 
-/* .root {
-  width: 100%;
-  min-height: 100vh;
-} */

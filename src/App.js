@@ -1,22 +1,25 @@
 import './App.css';
-import { Header, } from './components';
-import { Home, Guide } from './pages';
-import { Route, Switch, Link } from "wouter";
-import { supabase } from './supabaseClient';
+import { Header, AuthProvider, useAuth } from './components';
+import { Home, Guide, Profile, TestPage, TestsList } from './pages';
+import { Route, Switch } from 'wouter';
 import WebApp from '@twa-dev/sdk';
 
-function App() {
+
+export default function App() {
   WebApp.ready();
   WebApp.expand();
   return (
-    <div className="App">
-      <Header></Header>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/guide" component={Guide} />
-      </Switch>
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <Header />
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/guide/:id" component={Guide} />
+          <Route path="/profile" component={Profile} />
+          <Route path="/test" component={TestsList} />
+          <Route path="/test/:id" component={TestPage} />
+        </Switch>
+      </div>
+    </AuthProvider>
   );
 }
-
-export default App;

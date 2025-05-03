@@ -12,8 +12,8 @@ function Sections() {
 
   useEffect(() => {
     async function fetchAll() {
-      const { data: sectionsData, error: sectionError } = await supabase.from('Section').select('*');
-      const { data: subSectionsData, error: subSectionError } = await supabase.from('Subsection').select('*');
+      const { data: sectionsData, error: sectionError } = await supabase.from('section').select('*');
+      const { data: subSectionsData, error: subSectionError } = await supabase.from('subsection').select('*');
 
       if (sectionError || subSectionError) {
         console.error('Ошибка загрузки данных:', sectionError || subSectionError);
@@ -61,7 +61,7 @@ function Sections() {
                 .filter((sub) => sub.section === section.id)
                 .map((sub) => (
                   <li key={sub.id}>
-                    <Link href="/guide">
+                    <Link href={`/guide/${sub.id}`}>
                       <span>{sub.title}</span>
                     </Link>
                   </li>
