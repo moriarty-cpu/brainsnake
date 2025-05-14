@@ -1,78 +1,105 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from '../supabaseClient';
 import { useLocation } from "wouter";
-import { Star, Trophy } from "lucide-react";
+import { Star, Trophy, Award } from "lucide-react";
 import { useAuth } from "../components"
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import '../App.css'
 
 export default function TestsList() {
     const [tests, setTests] = useState([]);
-    const [ratings, setRatings] = useState({});
+    const [test_attempt, setTest_attempt] = useState({});
+    const [loading, setLoading] = useState(true);
     const [, navigate] = useLocation();
-    const { user:User } = useAuth();
-    const userId = User.id
+    const { user: User } = useAuth();
+    const userId = User.id;
 
     useEffect(() => {
-        async function load() {
-            const { data: testsData, error: tErr } = await supabase
-                .from("test")
-                .select("id, title");
-            if (tErr) console.error(tErr);
+        const loadData = async () => {
+            try {
+                const [{ data: testsData }, { data: attemptsData }] = await Promise.all([
+                    supabase.from("test").select("id, title"),
+                    supabase.from("test_attempt").select("*").eq("user_id", userId)
+                ]);
 
-            const { data: ratingData, error: rErr } = await supabase
-                .from("rating")
-                .select("id_user, test_id, star, trophy, finished_at")
-                .eq("id_user", userId);
-            if (rErr) console.error(rErr);
+                const attemptsMap = (attemptsData || []).reduce((acc, r) => {
+                    acc[r.test_id] = r;
+                    return acc;
+                }, {});
 
-            const map = {};
-            (ratingData || []).forEach(r => { map[r.test_id] = r; });
+                setTests(testsData || []);
+                setTest_attempt(attemptsMap);
+            } catch (error) {
+                console.error("Error loading data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-            setTests(testsData || []);
-            setRatings(map);
-        }
-        load();
+        loadData();
     }, [userId]);
+
+    if (loading) {
+        return (
+            <main>
+                <div>
+                    <h2>Доступные тесты</h2>
+                    <ul className="tests-list">
+                        {Array(10).fill().map((_, i) => (
+                            <Skeleton style={{
+                                marginBottom: '1rem',
+                                borderRadius: '15px',
+                                maxWidth: '165px',
+                                width: '165px',
+                                height: '54px',
+                            }} />
+                        ))}
+                    </ul>
+                </div>
+            </main>
+        );
+    }
 
     return (
         <main>
             <div>
                 <h2>Доступные тесты</h2>
-                <ul style={{
-                    listStyle: 'none',
-                }}>
+                <ul className="tests-list">
                     {tests.map(t => {
-                        const best = ratings[t.id] || { star: 0, trophy: false };
+                        const best = test_attempt[t.id] || { stars: 0, trophy: false };
                         return (
-                            <li key={t.id} style={{ marginBottom: '1em' }}>
-                                <span
-                                    onClick={() => navigate(`/test/${t.id}`)}
-                                    style={{ cursor: 'pointer', fontWeight: 'bold' }}
-                                >
-                                    {t.title}
-                                </span>
-                                <div style={{ display: 'flex', alignItems: 'center', marginTop: '0.5em' }}>
-                                    {/* Звёзды */}
-                                    {[...Array(5)].map((_, i) => (
-                                        // <Star
-                                        //     key={i}
-                                        //     size={20}
-                                        //     color={i < best.star ? '#FFD700' : '#555'}
-                                        //     style={{ marginRight: 4 }}
-                                        // />
-                                        <Star fill={i < best.star ? "#FFD700" : "none"} stroke="#FFD700" />
-                                    ))}
-                                    {/* Трофей */}
-                                    <Trophy
-                                        size={24}
-                                        color={best.trophy ? '#FFD700' : '#555'}
-                                        style={{ marginLeft: 12 }}
-                                    />
+                            <li
+                                key={t.id}
+                                className="test-item"
+                                onClick={() => navigate(`/test/${t.id}`)}
+                            >
+                                <span className="test-title">{t.title}</span>
+                                <div className="test-rating">
+                                    <div className="icon-container">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star
+                                                key={i}
+                                                size={18}
+                                                color={i < best.stars ? '#f9ff21' : '#7c203a'}
+                                                fill={i < best.stars ? "#d5f007" : "#7c203a"}
+                                            />
+                                        ))}
+                                    </div>
+                                    {best.trophy && (
+                                        <Award
+                                            style={{ marginLeft: 5 }}
+                                            size={18}
+                                            color="#f9ff21"
+                                            fill="#d5f007"
+                                        />
+                                    )}
                                 </div>
                             </li>
                         );
                     })}
                 </ul>
             </div>
-        </main >
+        </main>
     );
 }

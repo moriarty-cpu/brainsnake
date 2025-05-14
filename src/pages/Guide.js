@@ -71,7 +71,7 @@ function Guide() {
             justifyContent: 'space-between'
           }}>
             <button
-              className='navigateBtn'
+              className='btn'
               onClick={() => setLocation(`/guide/${prevGuide?.id}`)}
               disabled={!prevGuide}
               style={{ opacity: prevGuide ? 1 : 0.5 }}
@@ -80,7 +80,7 @@ function Guide() {
             </button>
 
             <button
-              className='navigateBtn'
+              className='btn'
               onClick={() => setLocation(`/guide/${nextGuide?.id}`)}
               disabled={!nextGuide}
               style={{ opacity: nextGuide ? 1 : 0.5 }}

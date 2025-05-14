@@ -7,6 +7,8 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 50px;
+    width: 100vw;
 }
 
 header div {
@@ -14,6 +16,7 @@ header div {
     justify-content: center;
     align-items: end;
     height: 50px;
+    width: auto;
 }
 
 header a {
@@ -67,7 +70,7 @@ h2 {
     margin-bottom: 10px;
 }
 
-.navigateBtn {
+.btn {
     /* width: 80px;
     height: 30px;
     color: #7c203a;
@@ -95,6 +98,7 @@ h2 {
     background: #ff9f68;
     border-radius: 20px;
     border: 1px solid #7c203a;
+    position: relative;
 }
 
 .userCardImgWrapper {
@@ -112,4 +116,152 @@ h2 {
     border: 1px solid #7c203a;
 }
 
-@media (max-width: 400px) {}
+.userRatingCard {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: 1px solid #7c203a;
+    background: #f79359;
+    padding: 4px;
+    border-radius: 15px;
+    /* color: #f9ff21; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* flex-direction: column; */
+}
+
+
+
+.userRatingCard span {
+    padding-top: 5px;
+}
+
+.userRatingCard div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-left: 5px;
+}
+
+
+.disp-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.leaderboard-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    background: #f79359;
+    border-radius: 20px;
+    border: 1px solid #7c203a;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.leaderboard-list {
+    width: 100%;
+}
+
+.leaderboard-item {
+    height: 65px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ff9f68;
+    border-radius: 15px;
+    border: 1.5px solid #7c203a;
+    padding: 0 10px;
+    margin-bottom: 3px;
+}
+
+.leaderboard-left {
+    height: 75px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    border: 1px solid #7c203a;
+    margin: 0 10px;
+}
+
+.leaderboard-right {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    width: 90px;
+    height: 24px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    margin-left: 5px;
+}
+
+.stat-value {
+    padding-top: 4px;
+    margin-left: 3px;
+}
+
+
+.tests-list {
+    list-style: none;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    padding: 0;
+    font-size: 0.9rem;
+}
+
+.test-item {
+    margin-bottom: 1rem;
+    background: #f79359;
+    border-radius: 15px;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    max-width: 165px;
+    border: 1px solid #7c203a;
+    transition: transform 0.2s;
+}
+
+.test-item:hover {
+    transform: scale(1.05);
+}
+
+.test-title {
+    text-align: center;
+    width: 100%;
+}
+
+.test-rating {
+    display: flex;
+    align-items: center;
+    margin-top: 0.3em;
+}
+
+.icon-container {
+    display: flex;
+    gap: 2px;
+}
+
+.award-icon {
+    margin-left: 5px;
+}

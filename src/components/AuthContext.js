@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { ClimbingBoxLoader } from "react-spinners";
 
 const AuthContext = createContext();
 export function useAuth() { return useContext(AuthContext); }
@@ -39,6 +40,17 @@ export function AuthProvider({ children }) {
     })();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+    <div style={{
+      width: '100%',
+      height: '100vh',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}>
+       <ClimbingBoxLoader size='25px' color='#7c203a' />
+    </div>
+  )} 
   return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>;
 }
