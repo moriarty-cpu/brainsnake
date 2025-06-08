@@ -18,39 +18,38 @@ export function AuthProvider({ children }) {
     const { id, first_name, last_name = '', username = '', photo_url = '' } = tgUser;
 
     (async () => {
-      const { data: existingUser, error: selectErr } = await supabase
+      const { data: dbUser, error } = await supabase
         .from('user')
-        .select('*')
-        .eq('id', parseInt(id))
-        .maybeSingle();
-      if (selectErr) console.error(selectErr);
+        .upsert(
+          [{ id: parseInt(id), first_name, last_name, username, photo_url }],
+          { onConflict: ['id'] }
+        )
+        .select()
+        .single();
 
-      let dbUser = existingUser;
-      if (!existingUser) {
-        const { data: newUser, error: insertErr } = await supabase
-          .from('user')
-          .insert([{ id: parseInt(id), first_name, last_name, username, photo_url }])
-          .single();
-        if (insertErr) console.error(insertErr);
-        dbUser = newUser;
+      if (error) {
+        console.error(error);
       }
 
       setUser(dbUser);
       setLoading(false);
     })();
+
   }, []);
 
   if (loading) {
     return (
-    <div style={{
-      width: '100%',
-      height: '100vh',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-       <ClimbingBoxLoader size='25px' color='#7c203a' />
-    </div>
-  )} 
+
+      <div style={{
+        width: '100%',
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+        <ClimbingBoxLoader size='25px' color='#7c203a' />
+      </div>
+    )
+  }
   return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>;
 }

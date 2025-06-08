@@ -1,3 +1,4 @@
+// src/pages/TestPage.jsx
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { supabase } from '../supabaseClient';
 import { useLocation, useRoute } from "wouter";
@@ -10,17 +11,34 @@ export default function TestPage() {
   const [, navigate] = useLocation();
   const [match, params] = useRoute("/test/:id");
   const testId = params?.id;
+
   const [questions, setQuestions] = useState([]);
   const [answersMap, setAnswersMap] = useState({});
   const [selected, setSelected] = useState({});
   const [error, setError] = useState('');
   const [timeLeft, setTimeLeft] = useState(450);
-  const timerRef = useRef();
   const [loading, setLoading] = useState(true);
+  const [autoSubmitted, setAutoSubmitted] = useState(false);
 
+  const timerRef = useRef();
+
+  // Запуск/рестарт таймера
+  const startTimer = () => {
+    clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => Math.max(0, t - 1));
+    }, 1000);
+  };
+
+  // Загрузка вопросов и ответов
   const loadData = useCallback(async () => {
     if (!testId) return;
     setLoading(true);
+    setSelected({});
+    setError('');
+    setTimeLeft(450);
+    setAutoSubmitted(false);
+
     try {
       const [{ data: qs }, { data: ans }] = await Promise.all([
         supabase.from("question").select("id, text").eq("test_id", testId).limit(15),
@@ -32,80 +50,98 @@ export default function TestPage() {
       const map = {};
       (ans || []).forEach(a => {
         if (qList.some(q => q.id === a.question_id)) {
-          if (!map[a.question_id]) map[a.question_id] = [];
+          map[a.question_id] = map[a.question_id] || [];
           map[a.question_id].push(a);
         }
       });
       setAnswersMap(map);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
+      startTimer();
     }
   }, [testId]);
 
+  // Основной эффект загрузки
   useEffect(() => {
     loadData();
+    return () => clearInterval(timerRef.current);
   }, [loadData]);
 
+  // Автосабмит по таймеру
   useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setTimeLeft(t => (t > 0 ? t - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timerRef.current);
-  }, []);
+    if (timeLeft === 0 && !autoSubmitted) {
+      handleSubmit(true);
+    }
+  }, [timeLeft, autoSubmitted]);
 
+  // Обработчик выбора ответа
   const handleChange = (qid, aid) => {
     setSelected(s => ({ ...s, [qid]: aid }));
     if (error) setError('');
   };
 
-  const handleSubmit = async () => {
-    if (questions.length && Object.keys(selected).length !== questions.length) {
-      setError('Пожалуйста, ответьте на все вопросы.');
-      return;
+  // Отправка (ручная и автоматическая)
+  const handleSubmit = async (auto = false) => {
+    clearInterval(timerRef.current);
+
+    // При ручном сабмите проверяем, что все вопросы отвечены
+    if (!auto) {
+      const unanswered = questions.find(q => !selected[q.id]);
+      if (unanswered) {
+        setError('Пожалуйста, ответьте на все вопросы перед отправкой.');
+        return;
+      }
     }
 
-    clearInterval(timerRef.current);
-    // Подсчет правильных ответов
-    let correctCount = questions.reduce((count, q) => {
-      const selId = selected[q.id];
-      const answer = answersMap[q.id].find(a => a.id === selId);
-      return count + (answer?.is_correct ? 1 : 0);
+    // Подсчёт правильных ответов
+    const correctCount = questions.reduce((count, q) => {
+      const sel = answersMap[q.id]?.find(a => a.id === selected[q.id]);
+      return count + (sel?.is_correct ? 1 : 0);
     }, 0);
 
     const stars = Math.min(5, Math.floor(correctCount / 3));
-    const trophy = timeLeft < 270 && stars === 5;
-
+    const trophy = timeLeft >= 270 && stars == 5;
+    console.log(trophy, "tro")
+    // Сохраняем в Supabase
     try {
-  const { data: prev, error: prevErr } = await supabase
-    .from('test_attempt')
-    .select('stars')
-    .eq('user_id', user.id)
-    .eq('test_id', testId)
-    .maybeSingle(); // ← Ключевое изменение
+      const { data: prev, error: prevErr } = await supabase
+        .from('test_attempt')
+        .select('stars')
+        .eq('user_id', user.id)
+        .eq('test_id', testId)
+        .maybeSingle();
 
-  if (prevErr) {
-    if (prevErr.code === 'PGRST116') { // Пустой результат - это нормально
-      console.log('Первая попытка');
-    } else {
-      throw prevErr;
+      if (prevErr && prevErr.code !== 'PGRST116') throw prevErr;
+      if (!prev || prev.stars < stars) {
+        await supabase.from('test_attempt').upsert({
+          user_id: user.id,
+          test_id: +testId,
+          stars,
+          trophy,
+        });
+      }
+    } catch (err) {
+      console.error('Ошибка сохранения попытки:', err);
     }
-  }
 
-  if (!prev || (prev.stars < stars)) {
-    await supabase.from('test_attempt').upsert({
-      user_id: user.id,
-      test_id: +testId,
+    // Сохраняем в sessionStorage и переходим
+    sessionStorage.setItem('testResult', JSON.stringify({
       stars,
       trophy,
-    });
-  }
-} catch (err) {
-  console.error('Ошибка сохранения попытки:', err);
-}
+      time: 450 - timeLeft,
+      rightAnswer: correctCount,
+      testId
+    }));
+    setAutoSubmitted(true);
+    navigate('/testRes');
+  };
 
-    navigate('/test');
+  // Перезапуск теста
+  const handleRestart = () => {
+    clearInterval(timerRef.current);
+    loadData();
   };
 
   if (!match) return <div>Loading...</div>;
@@ -119,11 +155,7 @@ export default function TestPage() {
           {Array(15).fill().map((_, i) => (
             <div key={i} className="question-skeleton">
               <Skeleton width={300} height={20} />
-              <div>
-                {Array(4).fill().map((_, j) => (
-                  <Skeleton key={j} width={250} height={15} />
-                ))}
-              </div>
+              {Array(4).fill().map((_, j) => <Skeleton key={j} width={250} height={15} />)}
             </div>
           ))}
           <Skeleton width={120} height={40} />
@@ -136,7 +168,10 @@ export default function TestPage() {
     <main>
       <div>
         <h2>Тест {testId}</h2>
-        <div>Времени осталось: {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}</div>
+        <div>
+          Времени осталось: {Math.floor(timeLeft / 60)}:
+          {String(timeLeft % 60).padStart(2, '0')}
+        </div>
         <form>
           {questions.map((q, idx) => (
             <div key={q.id} style={{ marginBottom: '1em' }}>
@@ -156,7 +191,10 @@ export default function TestPage() {
           ))}
         </form>
         {error && <div style={{ color: 'red', margin: '1em 0' }}>{error}</div>}
-        <button className='btn' onClick={handleSubmit}>Отправить</button>
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+          <button className="btn" onClick={() => handleSubmit(false)}>Отправить</button>
+          {/* <button className="btn" onClick={handleRestart}>Перезапустить</button> */}
+        </div>
       </div>
     </main>
   );

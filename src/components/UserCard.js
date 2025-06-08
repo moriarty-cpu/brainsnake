@@ -66,14 +66,14 @@ export default function UserCard({ number, star, trophy }) {
             <div className="userCardImgWrapper">
                 <img className="userCardImg" src={user.photo_url} alt="avatar" />
             </div>
-            <span style={{ fontSize: '0.8rem', marginTop: '10px' }}>@{user.username}</span>
+            <span style={{ fontSize: '0.8rem', marginTop: '10px' }}>{user.username ? "@" + user.username : ""}</span>
             <span style={{ fontSize: '1.5rem', marginTop: '10px' }}>
                 {user.first_name} {user.last_name}
             </span>
             <div className='userRatingCard'>
                 <div>
                     <Trophy size={24} strokeWidth='1.5px' fill='#f9ff21' stroke="#7c203a" />
-                    <span>#{number}</span>
+                    <span>{number == 0 ? '-' : `#${number}`}</span>
                 </div>
                 <div>
                     <Star strokeWidth='1.5px' fill='#f9ff21' stroke="#7c203a" />

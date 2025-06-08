@@ -201,7 +201,7 @@ h2 {
     justify-content: space-between;
     align-items: center;
     text-align: center;
-    width: 90px;
+    min-width: 100px; 
     height: 24px;
 }
 
@@ -214,6 +214,7 @@ h2 {
 .stat-value {
     padding-top: 4px;
     margin-left: 3px;
+    width: 24px;
 }
 
 
@@ -264,4 +265,17 @@ h2 {
 
 .award-icon {
     margin-left: 5px;
+}
+
+@media (max-width: 450px) {
+    .leaderboard-right {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    height: 50px;
+    min-width: 50px; 
+    width: 50px;
+}
 }

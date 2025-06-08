@@ -27,7 +27,7 @@ export default function Profile() {
         const currentUserData = data.find(u => u.id === user?.id);
         if (currentUserData) {
           setUserRes({
-            number: data.indexOf(currentUserData) + 1,
+            number: currentUserData.total_stars != 0 ? data.indexOf(currentUserData) + 1 : 0,
             stars: currentUserData.total_stars,
             trophies: currentUserData.total_trophies
           });

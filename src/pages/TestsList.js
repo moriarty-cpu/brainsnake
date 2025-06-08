@@ -79,18 +79,20 @@ export default function TestsList() {
                                     <div className="icon-container">
                                         {[...Array(5)].map((_, i) => (
                                             <Star
+                                             strokeWidth='1.7px'
                                                 key={i}
-                                                size={18}
-                                                color={i < best.stars ? '#f9ff21' : '#7c203a'}
+                                                size={20}
+                                                color="#7c203a"
                                                 fill={i < best.stars ? "#d5f007" : "#7c203a"}
                                             />
                                         ))}
                                     </div>
                                     {best.trophy && (
                                         <Award
+                                         strokeWidth='1.7px'
                                             style={{ marginLeft: 5 }}
-                                            size={18}
-                                            color="#f9ff21"
+                                            size={20}
+                                            color="#7c203a"
                                             fill="#d5f007"
                                         />
                                     )}
