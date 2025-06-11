@@ -57,14 +57,16 @@ function Sections() {
           {openedSectionId === section.id && (
             <ol className="subOl" style={{ marginLeft: '1rem' }}>
               {guides
-                .filter((guide) => guide.section === section.id)
-                .map((guide) => (
+                .filter(guide => section.id === guide.section) // Фильтрация по секции
+                .sort((a, b) => a.id - b.id)                  // Сортировка по возрастанию ID
+                .map(guide => (
                   <li key={guide.id}>
                     <Link href={`/guide/${guide.id}`}>
                       <span>{guide.title || 'Без названия'}</span>
                     </Link>
                   </li>
-                ))}
+                ))
+              }
             </ol>
           )}
         </li>
